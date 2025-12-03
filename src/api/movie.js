@@ -16,4 +16,14 @@ export const searchMovies = async ({ query, page }) => {
   return data
 }
 
+export const getMovieById = async id => {
+  const params = {
+    apikey: API_KEY,
+    i: id,
+    plot: 'full'
+  }
+  const { data } = await client.get('/', { params })
+  return data
+}
+
 export default client

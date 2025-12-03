@@ -1,21 +1,32 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
-export default function useInfiniteScroll(callback, canLoad) {
+export default function useInfiniteScroll(onLoadMore, shouldLoad = true) {
+  const ref = useRef(null)
+
   useEffect(() => {
-    // console.log("object", !canLoad);
-    // if (!canLoad){
-    //   return
-    // }
+    if (!shouldLoad) return
 
-    const onScroll = () => {
-      console.log("scroll");
-      const { scrollTop, scrollHeight, clientHeight } = document.documentElement
-      if (scrollTop + clientHeight >= scrollHeight - 300) {
-        callback()
+    const element = ref.current
+    if (!element) return
+
+    const observer = new IntersectionObserver(
+      entries => {
+        const entry = entries[0]
+        if (entry.isIntersecting) {
+          onLoadMore()
+        }
+      },
+      {
+        root: null,
+        rootMargin: '200px',
+        threshold: 0
       }
-    }
-    
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [callback, canLoad])
+    )
+
+    observer.observe(element)
+
+    return () => observer.disconnect()
+  }, [onLoadMore, shouldLoad])
+
+  return ref
 }

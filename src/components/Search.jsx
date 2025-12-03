@@ -17,7 +17,9 @@ const Search = () => {
   return (
     <div className="w-full max-w-2xl mx-auto p-4">
       <input
-        className="w-full p-3 rounded shadow-sm border focus:outline-none"
+        className="w-full px-3 py-3 rounded-lg bg-neutral-900 text-gray-100 placeholder-gray-500 
+                  border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-yellow-700 
+                  focus:border-transparent transition"
         placeholder="Search movies by title..."
         value={value}
         onChange={e => setValue(e.target.value)}
