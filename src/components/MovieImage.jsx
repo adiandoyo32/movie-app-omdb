@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function MovieImage({ src, alt, className = '' }) {
+export default function MovieImage({ src, alt, className = '', openable = true, hoverable = true }) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState(false)
 
@@ -18,15 +18,19 @@ export default function MovieImage({ src, alt, className = '' }) {
     }
   }, [open])
 
+  const handleClick = (e) => {
+    e.stopPropagation()
+    if (openable) {
+      setOpen(true)
+    }
+  }
+
   return (
     <>
       {showFallback ? (
         <div
-          className={`bg-gray-950 text-gray-300 flex items-center justify-center rounded-xl aspect-2/3 cursor-pointer ${className}`}
-          onClick={e => {
-            e.stopPropagation()
-            setOpen(true)
-          }}
+          className={`bg-gray-950 text-gray-300 flex items-center justify-center aspect-2/3 cursor-pointer ${className}`}
+          onClick={handleClick}
         >
           No Poster
         </div>
@@ -34,11 +38,8 @@ export default function MovieImage({ src, alt, className = '' }) {
         <img
           src={src}
           alt={alt}
-          className={`cursor-pointer transition-transform duration-300 hover:scale-105 rounded-xl ${className}`}
-          onClick={e => {
-            e.stopPropagation()
-            setOpen(true)
-          }}
+          className={`${hoverable ? 'cursor-pointer transition-transform duration-300 hover:scale-105' : ''} ${className}`}
+          onClick={handleClick}
           onError={() => setError(true)}
         />
       )}
