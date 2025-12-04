@@ -21,7 +21,6 @@ export default function MovieList() {
 
   return (
     <div className="max-w-6xl mx-auto mt-6 px-4">
-      <h1 className="text-2xl font-bold text-white">asdasdsadsad {status}</h1>
       {status === 'failed' && (
         <div className="p-4 bg-red-100 text-red-800 rounded">{error}</div>
       )}
