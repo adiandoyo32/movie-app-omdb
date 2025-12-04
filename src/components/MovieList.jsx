@@ -11,18 +11,24 @@ export default function MovieList() {
   )
 
   const loadMore = useCallback(() => {
-    if (status === 'loading' || !hasMore || !query) {
+    if (status === 'loading' || !hasMore || !query || status === 'failed') {
       return
     }
     dispatch(fetchMovies({ query, page: page + 1 }))
   }, [dispatch, query, page, hasMore, status])
 
-  const loaderRef = useInfiniteScroll(loadMore, !!query && hasMore && status !== 'loading')
+  const loaderRef = useInfiniteScroll(
+    loadMore,
+    !!query && hasMore && status !== 'loading'
+  )
 
   return (
     <div className="max-w-6xl mx-auto mt-6 px-4">
       {status === 'failed' && (
-        <div className="p-4 bg-red-100 text-red-800 rounded">{error}</div>
+        <div className="text-center max-w-md mx-auto px-4 mt-36">
+          <h2 className="text-white text-2xl font-bold mb-2">Oops!</h2>
+          <p className="text-gray-300 mb-6">{error}</p>
+        </div>
       )}
       {list.length === 0 && status !== 'loading' && !error && (
         <div className="p-6 text-center text-gray-600">

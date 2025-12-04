@@ -49,9 +49,7 @@ const moviesSlice = createSlice({
         state.status = 'succeeded'
         const { data, page } = action.payload
         if (data.Response === 'True') {
-          // Append unique results
           const newItems = data.Search || []
-          // Avoid duplicates by imdbID
           const existingIds = new Set(state.list.map(m => m.imdbID))
 
           newItems.forEach(it => {
@@ -61,7 +59,6 @@ const moviesSlice = createSlice({
           state.page = page
           state.hasMore = state.list.length < state.totalResults
         } else {
-          // No results
           if (page === 1) state.list = []
           state.hasMore = false
           state.totalResults = 0
