@@ -17,7 +17,10 @@ export default function MovieCard({ movie }) {
             className="w-full h-full object-cover"
           />
         </div>
-        <p className="text-white/85 text-base font-semibold px-3 py-3 leading-5">
+        <p
+          className="text-white/85 text-base font-semibold px-3 py-3 leading-5"
+          data-testid="movie-title"
+        >
           {movie.Title} ({movie.Year})
         </p>
       </div>

@@ -46,6 +46,7 @@ export default function MovieImage({ src, alt, className = '' }) {
       {open && (
         <div
           className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center animate-fadeIn"
+          data-testid="modal"
           onClick={e => {
             e.stopPropagation()
             setOpen(false)
@@ -53,6 +54,7 @@ export default function MovieImage({ src, alt, className = '' }) {
         >
           <div
             className="max-w-3xl w-auto p-4 animate-scaleIn"
+            data-testid="modal-content"
             onClick={e => e.stopPropagation()}
           >
             <img

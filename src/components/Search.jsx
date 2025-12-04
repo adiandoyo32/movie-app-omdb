@@ -22,6 +22,7 @@ const Search = () => {
                   focus:border-transparent transition"
         placeholder="Search movies by title..."
         value={value}
+        data-testid="search-input"
         onChange={e => setValue(e.target.value)}
       />
     </div>
