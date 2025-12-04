@@ -1,9 +1,16 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { Provider } from 'react-redux'
 import { configureStore } from '@reduxjs/toolkit'
 import Search from '@/components/Search'
 import moviesReducer from '@/redux/movieSlice'
+import { searchMovies } from '@/api/movie'
+
+vi.mock('@/api/movie', () => ({
+  searchMovies: vi.fn()
+}))
+
+const mockSearchMovies = vi.mocked(searchMovies)
 
 const createMockStore = (initialState = {}) => {
   return configureStore({
@@ -34,6 +41,30 @@ const renderWithProvider = (component, initialState = {}) => {
 }
 
 describe('Search', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockSearchMovies.mockResolvedValue({
+      Response: 'True',
+      Search: [
+        {
+          Title: 'Inception',
+          Year: '2010',
+          imdbID: 'tt1375666',
+          Type: 'movie',
+          Poster: 'https://example.com/inception.jpg'
+        },
+        {
+          Title: 'Interstellar',
+          Year: '2014',
+          imdbID: 'tt0816692',
+          Type: 'movie',
+          Poster: 'https://example.com/interstellar.jpg'
+        }
+      ],
+      totalResults: '2'
+    })
+  })
+
   it('renders the search input field', () => {
     renderWithProvider(<Search />)
     const input = screen.getByTestId('search-input')
@@ -48,69 +79,55 @@ describe('Search', () => {
     expect(input).toHaveValue('Inception')
   })
 
-  it('dispatches setQuery action after debounce delay', async () => {
+  it('dispatches setQuery action when Enter is pressed', async () => {
     vi.useFakeTimers()
     const { store } = renderWithProvider(<Search />)
     const input = screen.getByTestId('search-input')
     fireEvent.change(input, { target: { value: 'Inception' } })
     expect(input).toHaveValue('Inception')
     expect(store.getState().movies.query).toBe('')
-    act(() => {
-      vi.advanceTimersByTime(500)
-    })
+    
+    fireEvent.keyDown(input, { key: 'Enter' })
     expect(store.getState().movies.query).toBe('Inception')
     vi.useRealTimers()
   })
 
-  it('trims whitespace from input before dispatching', async () => {
+  it('trims whitespace from input before dispatching on Enter', async () => {
     vi.useFakeTimers()
     const { store } = renderWithProvider(<Search />)
     const input = screen.getByTestId('search-input')
     fireEvent.change(input, { target: { value: ' Inception ' } })
     expect(input).toHaveValue(' Inception ')
     expect(store.getState().movies.query).toBe('')
-    act(() => {
-      vi.advanceTimersByTime(500)
-    })
+    
+    fireEvent.keyDown(input, { key: 'Enter' })
     expect(store.getState().movies.query).toBe('Inception')
     vi.useRealTimers()
   })
 
-  it('does not dispatch setQuery for empty values', async () => {
+  it('does not dispatch setQuery for empty values on Enter', async () => {
     vi.useFakeTimers()
     const { store } = renderWithProvider(<Search />)
     const input = screen.getByTestId('search-input')
     fireEvent.change(input, { target: { value: 'Test' } })
-    act(() => {
-      vi.advanceTimersByTime(500)
-    })
+    fireEvent.keyDown(input, { key: 'Enter' })
     expect(store.getState().movies.query).toBe('Test')
+    
     fireEvent.change(input, { target: { value: '' } })
-    act(() => {
-      vi.advanceTimersByTime(500)
-    })
+    fireEvent.keyDown(input, { key: 'Enter' })
     expect(store.getState().movies.query).toBe('Test')
     vi.useRealTimers()
   })
 
-  it('debounces multiple rapid input changes', async () => {
-    vi.useFakeTimers()
-    const { store } = renderWithProvider(<Search />)
+  it('fetches and displays autocomplete suggestions', async () => {
+    renderWithProvider(<Search />)
     const input = screen.getByTestId('search-input')
     fireEvent.change(input, { target: { value: 'In' } })
-    act(() => {
-      vi.advanceTimersByTime(200)
+    await waitFor(() => {
+      expect(mockSearchMovies).toHaveBeenCalledWith({ query: 'In', page: 1 })
     })
-    fireEvent.change(input, { target: { value: 'Incep' } })
-    act(() => {
-      vi.advanceTimersByTime(200)
-    })
-    fireEvent.change(input, { target: { value: 'Inception' } })
-    expect(store.getState().movies.query).toBe('')
-    act(() => {
-      vi.advanceTimersByTime(500)
-    })
-    expect(store.getState().movies.query).toBe('Inception')
-    vi.useRealTimers()
+    expect(screen.getByTestId('autocomplete-suggestions')).toBeInTheDocument()
+    expect(screen.getByText('Inception')).toBeInTheDocument()
+    expect(screen.getByText('Interstellar')).toBeInTheDocument()
   })
 })
