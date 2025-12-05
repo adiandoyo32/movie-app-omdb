@@ -79,6 +79,7 @@ npm run preview
 - `npm run format` - Format code with Prettier
 - `npm run format:check` - Check code formatting
 - `npm test` - Run tests with Vitest
+- `npm run anagram` - Run anagram code
 
 ## Tech Stack
 

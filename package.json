@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest"
+    "test": "vitest",
+    "anagram": "node anagram/index.js"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.0",
